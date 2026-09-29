@@ -1,25 +1,34 @@
 module "naming" {
-  source  = "cloudnationhq/naming/azure"
-  version = "~> 0.32"
+  source  = "codectl/naming/azure"
+  version = "~> 0.1"
 
   suffix = ["demo", "dev"]
 }
 
+module "regions" {
+  source  = "codectl/locations/azure"
+  version = "~> 1.0"
+
+  location = {
+    primary = "westeurope"
+  }
+}
+
 module "rg" {
-  source  = "cloudnationhq/rg/azure"
-  version = "~> 3.0"
+  source  = "codectl/rg/azure"
+  version = "~> 1.0"
 
   groups = {
     demo = {
       name     = module.naming.resource_group.name_unique
-      location = "westeurope"
+      location = module.regions.location.primary.name
     }
   }
 }
 
 module "network" {
-  source  = "cloudnationhq/vnet/azure"
-  version = "~> 10.0"
+  source  = "codectl/vnet/azure"
+  version = "~> 1.0"
 
   vnet = {
     name                = module.naming.virtual_network.name
@@ -38,8 +47,8 @@ module "network" {
 }
 
 module "search" {
-  source  = "cloudnationhq/srch/azure"
-  version = "~> 2.0"
+  source  = "codectl/srch/azure"
+  version = "~> 1.0"
 
   search_service = {
     name                          = module.naming.search_service.name_unique
@@ -51,8 +60,8 @@ module "search" {
 }
 
 module "private_dns" {
-  source  = "cloudnationhq/pdns/azure"
-  version = "~> 5.0"
+  source  = "codectl/pdns/azure"
+  version = "~> 1.0"
 
   resource_group_name = module.rg.groups.demo.name
 
@@ -71,8 +80,8 @@ module "private_dns" {
 }
 
 module "private_endpoint" {
-  source  = "cloudnationhq/pe/azure"
-  version = "~> 3.0"
+  source  = "codectl/pe/azure"
+  version = "~> 1.0"
 
   resource_group_name = module.rg.groups.demo.name
   location            = module.rg.groups.demo.location
